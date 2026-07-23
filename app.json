@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon",
-      "bundleIdentifier": "com.sathyarakesh.grocify",
+      "bundleIdentifier": "com.diligent.grocify",
       "appleTeamId": "5RZP9663S4"
     },
     "android": {
@@ -20,7 +20,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.sathyarakesh.grocify"
+      "package": "com.diligent.grocify"
     },
     "web": {
       "output": "static",
@@ -36,7 +36,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(killall Xcode)",
+      "Bash(killall -9 xcodebuild)",
+      "Bash(killall -9 Xcode xcodebuild xcrun)",
+      "Bash(rm -rf ~/Library/Developer/Xcode/DerivedData/*)",
+      "Bash(xargs kill:*)",
+      "Bash(npx expo:*)",
+      "Bash(killall -9 ibtoold)",
+      "Bash(xcodebuild clean:*)",
+      "Bash(xcrun xcodebuild:*)",
+      "Skill(expo:eas-simulator)",
+      "Bash(sudo lsof:*)",
+      "Bash(xcodebuild -scheme grocify -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath ./build -parallelizeTargets -jobs 1)",
+      "Bash(sed -i '' 's/buildActionMask = 2147483647;/buildActionMask = 1;/' /Users/satkumar/Documents/Personal/ReactNative/grocify/ios/grocify.xcodeproj/project.pbxproj)",
+      "Bash(sed -i '' '252,266s/runOnlyForDeploymentPostprocessing = 0;/runOnlyForDeploymentPostprocessing = 1;/' /Users/satkumar/Documents/Personal/ReactNative/grocify/ios/grocify.xcodeproj/project.pbxproj)",
+      "Bash(xcodebuild -scheme grocify -configuration Debug -destination 'generic/platform=iOS Simulator' clean)",
+      "Bash(rm -rf ~/Library/Developer/Xcode/DerivedData/Build)",
+      "Bash(XCODE_XCCONFIG_FILE=/dev/null npx expo run:ios)",
+      "Bash(sudo rm:*)",
+      "Bash(killall -9 Xcode xcodebuild xcrun ibtoold)",
+      "Bash(xcodebuild -scheme grocify -configuration Debug -derivedDataPath ./DerivedData)",
+      "Bash(npm start:*)",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)"
+    ]
+  }
+}

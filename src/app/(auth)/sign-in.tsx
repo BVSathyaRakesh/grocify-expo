@@ -1,254 +1,114 @@
-import { ThemedText } from '@/components/themed-text'
-import { ThemedView } from '@/components/themed-view'
-import { useSignIn } from '@clerk/expo'
-import { type Href, Link, useRouter } from 'expo-router'
-import React from 'react'
-import { Pressable, StyleSheet, TextInput, View } from 'react-native'
+import useSocialAuth from '@/hooks/useSocialAuth';
+import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { Image } from "expo-image";
+import { Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Page() {
-  const { signIn, errors, fetchStatus } = useSignIn()
-  const router = useRouter()
+const SignInScreen = () => {
+  const {handleSocialAuth, loadingStrategy} = useSocialAuth();
 
-  const [emailAddress, setEmailAddress] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [code, setCode] = React.useState('')
+  const isGoogleClicked = loadingStrategy === "oauth_google";
+  const isAppleClicked = loadingStrategy === "oauth_apple";
+  const isGitHubClicked = loadingStrategy === "oauth_github";
 
-  const handleSubmit = async () => {
-    const { error } = await signIn.password({
-      emailAddress,
-      password,
-    })
-    if (error) {
-      console.error(JSON.stringify(error, null, 2))
-      return
-    }
-
-    if (signIn.status === 'complete') {
-      await signIn.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            // Handle pending session tasks
-            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            console.log(session?.currentTask)
-            return
-          }
-
-          const url = decorateUrl('/')
-          if (url.startsWith('http')) {
-            window.location.href = url
-          } else {
-            router.push(url as Href)
-          }
-        },
-      })
-    } else if (signIn.status === 'needs_second_factor') {
-      // See https://clerk.com/docs/guides/development/custom-flows/authentication/multi-factor-authentication
-    } else if (signIn.status === 'needs_client_trust') {
-      // For other second factor strategies,
-      // see https://clerk.com/docs/guides/development/custom-flows/authentication/client-trust
-      const emailCodeFactor = signIn.supportedSecondFactors.find(
-        (factor) => factor.strategy === 'email_code',
-      )
-
-      if (emailCodeFactor) {
-        await signIn.mfa.sendEmailCode()
-      }
-    } else {
-      // Check why the sign-in is not complete
-      console.error('Sign-in attempt not complete:', signIn)
-    }
-  }
-
-  const handleVerify = async () => {
-    await signIn.mfa.verifyEmailCode({ code })
-
-    if (signIn.status === 'complete') {
-      await signIn.finalize({
-        navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            // Handle pending session tasks
-            // See https://clerk.com/docs/guides/development/custom-flows/authentication/session-tasks
-            console.log(session?.currentTask)
-            return
-          }
-
-          const url = decorateUrl('/')
-          if (url.startsWith('http')) {
-            window.location.href = url
-          } else {
-            router.push(url as Href)
-          }
-        },
-      })
-    } else {
-      // Check why the sign-in is not complete
-      console.error('Sign-in attempt not complete:', signIn)
-    }
-  }
-
-  if (signIn.status === 'needs_client_trust') {
-    return (
-      <ThemedView style={styles.container}>
-        <ThemedText type="title" style={[styles.title, { fontSize: 24, fontWeight: 'bold' }]}>
-          Verify your account
-        </ThemedText>
-        <TextInput
-          style={styles.input}
-          value={code}
-          placeholder="Enter your verification code"
-          placeholderTextColor="#666666"
-          onChangeText={(code) => setCode(code)}
-          keyboardType="numeric"
-        />
-        {errors.fields.code && (
-          <ThemedText style={styles.error}>{errors.fields.code.message}</ThemedText>
-        )}
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            fetchStatus === 'fetching' && styles.buttonDisabled,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={handleVerify}
-          disabled={fetchStatus === 'fetching'}
-        >
-          <ThemedText style={styles.buttonText}>Verify</ThemedText>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
-          onPress={() => signIn.mfa.sendEmailCode()}
-        >
-          <ThemedText style={styles.secondaryButtonText}>I need a new code</ThemedText>
-        </Pressable>
-        <Pressable
-          style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonPressed]}
-          onPress={() => signIn.reset()}
-        >
-          <ThemedText style={styles.secondaryButtonText}>Start over</ThemedText>
-        </Pressable>
-      </ThemedView>
-    )
-  }
+  const isLoading = isAppleClicked || isGitHubClicked || isGoogleClicked;
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Sign in
-      </ThemedText>
+    <SafeAreaView className='flex-1 bg-primary-dark dark:bg-secondary' edges={['top']}>
+      {/* decorative elements */}
+      <View className="absolute -left-16 top-12 h-56 w-56 rounded-full bg-primary/80 dark:bg-background/40" />
+      <View className="absolute right-[-74px] top-40 h-72 w-72 rounded-full bg-primary/70 dark:bg-background/35" />
 
-      <ThemedText style={styles.label}>Email address</ThemedText>
-      <TextInput
-        style={styles.input}
-        autoCapitalize="none"
-        value={emailAddress}
-        placeholder="Enter email"
-        placeholderTextColor="#666666"
-        onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
-        keyboardType="email-address"
-      />
-      {errors.fields.identifier && (
-        <ThemedText style={styles.error}>{errors.fields.identifier.message}</ThemedText>
-      )}
-      <ThemedText style={styles.label}>Password</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={password}
-        placeholder="Enter password"
-        placeholderTextColor="#666666"
-        secureTextEntry={true}
-        onChangeText={(password) => setPassword(password)}
-      />
-      {errors.fields.password && (
-        <ThemedText style={styles.error}>{errors.fields.password.message}</ThemedText>
-      )}
-      <Pressable
-        style={({ pressed }) => [
-          styles.button,
-          (!emailAddress || !password || fetchStatus === 'fetching') && styles.buttonDisabled,
-          pressed && styles.buttonPressed,
-        ]}
-        onPress={handleSubmit}
-        disabled={!emailAddress || !password || fetchStatus === 'fetching'}
-      >
-        <ThemedText style={styles.buttonText}>Continue</ThemedText>
-      </Pressable>
-      {/* For your debugging purposes. You can just console.log errors, but we put them in the UI for convenience */}
-      {errors && <ThemedText style={styles.debug}>{JSON.stringify(errors, null, 2)}</ThemedText>}
+      <View className="px-6 pt-4">
+        <Text className="text-center text-5xl font-extrabold tracking-tight text-primary-foreground uppercase font-mono dark:text-foreground">
+          Grocify
+        </Text>
 
-      <View style={styles.linkContainer}>
-        <ThemedText>Don't have an account? </ThemedText>
-        <Link href="/sign-up">
-          <ThemedText type="link">Sign up</ThemedText>
-        </Link>
+        <Text className="mt-1 text-center text-[14px] text-primary-foreground/80 dark:text-foreground/75">
+          Plan smarter. Shop happier.
+        </Text>
+
+        <View className="mt-6 rounded-[30px] border border-white/20 bg-white/10 p-3">
+          <Image
+            source={require("../../../assets/images/auth.png")}
+            style={{ width: "100%", height: 300 }}
+            contentFit="contain"
+          />
+        </View>
       </View>
-    </ThemedView>
-  )
+
+
+      <View className='mt-8 flex-1  rounded-t-[36px] bg-card-foreground px-6 pb-8 pt-6'>
+      <View className="self-center rounded-full bg-secondary px-3 py-1">
+          <Text className="text-xs font-semibold uppercase tracking-[1px] text-secondary-foreground">
+            Welcome Back
+          </Text>
+        </View>
+
+        <Text className="mt-2 text-center text-sm leading-6 text-muted-foreground">
+          Choose a social provider and jump right into your personalized grocery experience.
+        </Text>
+
+        <View className="mt-6">
+          <Pressable
+            className={`mb-3 h-14 flex-row items-center rounded-2xl border border-border bg-card px-4 active:opacity-90 ${
+              isLoading ? "opacity-70" : ""
+            }`}
+            disabled={isLoading}
+            onPress={() => handleSocialAuth("oauth_google")}
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-white">
+              <Image
+                source={require("../../../assets/images/google.png")}
+                style={{ width: 20, height: 20 }}
+              />
+            </View>
+
+            <Text className="ml-3 flex-1 text-lg font-semibold text-card-foreground">
+              {isGoogleClicked ? "Connecting Google..." : "Continue with Google"}
+            </Text>
+
+            <FontAwesome name="angle-right" size={18} color="#5f6e66" />
+          </Pressable>
+
+          <Pressable
+            className={`mb-3 h-14 flex-row items-center rounded-2xl border border-border bg-card px-4 active:opacity-90 ${
+              isLoading ? "opacity-70" : ""
+            }`}
+            disabled={isLoading}
+            onPress={() => handleSocialAuth("oauth_github")}
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-white">
+              <FontAwesome name="github" size={24} color="#111" />
+            </View>
+            <Text className="ml-3 flex-1 text-lg font-semibold text-card-foreground">
+              {isGitHubClicked ? "Connecting GitHub..." : "Continue with GitHub"}
+            </Text>
+            <FontAwesome name="angle-right" size={18} color="#5f6e66" />
+          </Pressable>
+
+          <Pressable
+            className={`mb-3 h-14 flex-row items-center rounded-2xl border border-foreground bg-foreground px-4 active:opacity-90 ${
+              isLoading ? "opacity-70" : ""
+            }`}
+            disabled={isLoading}
+            onPress={() => handleSocialAuth("oauth_apple")}
+          >
+            <View className="h-8 w-8 items-center justify-center rounded-full bg-white">
+              <FontAwesome6 name="apple" size={22} color="#111" />
+            </View>
+            <Text className="ml-3 flex-1 text-lg font-semibold text-background">
+              {isAppleClicked ? "Connecting Apple..." : "Continue with Apple"}
+            </Text>
+            <FontAwesome name="angle-right" size={18} color="#5f6e66" />
+          </Pressable>
+        </View>
+        <Text className="mt-3 text-center text-sm leading-5 text-muted-foreground">
+          By continuing, you agree to our Terms and Privacy Policy.
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    gap: 12,
-  },
-  title: {
-    marginBottom: 8,
-  },
-  label: {
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
-  button: {
-    backgroundColor: '#0a7ea4',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonPressed: {
-    opacity: 0.7,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-  secondaryButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  secondaryButtonText: {
-    color: '#0a7ea4',
-    fontWeight: '600',
-  },
-  linkContainer: {
-    flexDirection: 'row',
-    gap: 4,
-    marginTop: 12,
-    alignItems: 'center',
-  },
-  error: {
-    color: '#d32f2f',
-    fontSize: 12,
-    marginTop: -8,
-  },
-  debug: {
-    fontSize: 10,
-    opacity: 0.5,
-    marginTop: 8,
-  },
-})
+export default SignInScreen;

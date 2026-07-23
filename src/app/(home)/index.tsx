@@ -1,52 +1,77 @@
 import { Show, useClerk, useUser } from '@clerk/expo'
 import { Link } from 'expo-router'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native'
+import { ThemedView } from '@/components/themed-view'
+import { ThemedText } from '@/components/themed-text'
 
 export default function Page() {
   const { user } = useUser()
   const { signOut } = useClerk()
+  const colorScheme = useColorScheme()
+  const dynamicStyles = createStyles(colorScheme)
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome!</Text>
+    <ThemedView style={dynamicStyles.container}>
+      <ThemedText type="title" style={dynamicStyles.title}>
+        Welcome!
+      </ThemedText>
       <Show when="signed-out">
         <Link href="/(auth)/sign-in">
-          <Text>Sign in</Text>
+          <ThemedText style={dynamicStyles.link}>Sign in</ThemedText>
         </Link>
         <Link href="/(auth)/sign-up">
-          <Text>Sign up</Text>
+          <ThemedText style={dynamicStyles.link}>Sign up</ThemedText>
         </Link>
       </Show>
       <Show when="signed-in">
-        <Text>Hello {user?.emailAddresses[0].emailAddress}</Text>
-        <Pressable style={styles.button} onPress={() => signOut()}>
-          <Text style={styles.buttonText}>Sign out</Text>
+        <ThemedText>Hello {user?.emailAddresses[0].emailAddress}</ThemedText>
+        <Pressable style={({ pressed }) => [dynamicStyles.button, pressed && dynamicStyles.buttonPressed]} onPress={() => signOut()}>
+          <ThemedText style={dynamicStyles.buttonText}>Sign out</ThemedText>
         </Pressable>
       </Show>
-    </View>
+    </ThemedView>
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 60,
-    gap: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  button: {
-    backgroundColor: '#0a7ea4',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-})
+const createStyles = (colorScheme: 'light' | 'dark' | null) => {
+  const isDark = colorScheme === 'dark'
+  const colors = {
+    buttonBg: '#0a7ea4',
+    buttonTextColor: '#fff',
+    linkColor: '#0a7ea4',
+  }
+
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 20,
+      paddingTop: 60,
+      gap: 16,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+    },
+    link: {
+      color: colors.linkColor,
+      fontWeight: '600',
+      fontSize: 16,
+    },
+    button: {
+      backgroundColor: colors.buttonBg,
+      paddingVertical: 12,
+      paddingHorizontal: 24,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    buttonPressed: {
+      opacity: 0.7,
+    },
+    buttonText: {
+      color: colors.buttonTextColor,
+      fontWeight: '600',
+    },
+  })
+}
+
+const styles = createStyles(null)

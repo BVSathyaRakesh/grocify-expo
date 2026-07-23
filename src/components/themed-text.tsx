@@ -4,33 +4,22 @@ interface ThemedTextProps extends TextProps {
   type?: 'default' | 'title' | 'subtitle' | 'link'
 }
 
-export function ThemedText({ type = 'default', style, ...rest }: ThemedTextProps) {
-  let textStyle: TextProps['style'] = {}
+export function ThemedText({ type = 'default', className, ...rest }: ThemedTextProps) {
+  let baseClass = 'text-foreground'
 
   switch (type) {
     case 'title':
-      textStyle = {
-        fontSize: 28,
-        fontWeight: 'bold',
-      }
+      baseClass = 'text-foreground text-2xl font-bold'
       break
     case 'subtitle':
-      textStyle = {
-        fontSize: 18,
-        fontWeight: '600',
-      }
+      baseClass = 'text-foreground text-lg font-semibold'
       break
     case 'link':
-      textStyle = {
-        color: '#0a7ea4',
-        fontWeight: '600',
-      }
+      baseClass = 'text-primary font-semibold'
       break
     default:
-      textStyle = {
-        fontSize: 16,
-      }
+      baseClass = 'text-foreground text-base'
   }
 
-  return <Text style={[textStyle, style]} {...rest} />
+  return <Text className={`${baseClass} ${className || ''}`} {...rest} />
 }
