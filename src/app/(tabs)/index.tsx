@@ -1,8 +1,8 @@
+import { ThemedText } from '@/components/themed-text'
+import { ThemedView } from '@/components/themed-view'
 import { Show, useClerk, useUser } from '@clerk/expo'
 import { Link } from 'expo-router'
-import { Pressable, StyleSheet, Text, View, useColorScheme } from 'react-native'
-import { ThemedView } from '@/components/themed-view'
-import { ThemedText } from '@/components/themed-text'
+import { Pressable, StyleSheet, useColorScheme } from 'react-native'
 
 export default function Page() {
   const { user } = useUser()
