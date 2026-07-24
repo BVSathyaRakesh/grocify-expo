@@ -23,7 +23,9 @@
       "Bash(xcodebuild -scheme grocify -configuration Debug -derivedDataPath ./DerivedData)",
       "Bash(npm start:*)",
       "Bash(npm run:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(ls -la /Users/satkumar/Desktop/Apps/grocify/src/app/\\\\\\(tabs\\\\\\)/)",
+      "Bash(ls -la /Users/satkumar/Desktop/Apps/grocify/src/app/\\\\\\(auth\\\\\\)/)"
     ]
   }
 }
