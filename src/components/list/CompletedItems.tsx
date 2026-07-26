@@ -9,15 +9,15 @@ const CompletedItems = () => {
   if (!completedItems.length) return null;
 
   return (
-    <View className="mt-3 rounded-3xl border border-border bg-secondary p-4">
-      <Text className="text-sm font-semibold uppercase tracking-[1px] text-secondary-foreground">
+    <View className="mt-3 rounded-3xl border border-secondary-foreground bg-card-foreground p-4">
+      <Text className="text-sm font-semibold uppercase tracking-[1px] text-secondary-foreground-dark">
         Completed
       </Text>
 
       {completedItems.map((item) => (
         <View
           key={item.id}
-          className="mt-3 flex-row items-center justify-between rounded-2xl border border-border bg-card px-3 py-2"
+          className="mt-3 flex-row items-center justify-between rounded-2xl border border-secondary-foreground bg-card-foreground px-3 py-2"
         >
           <View className="flex-row items-center gap-2">
             <Pressable
